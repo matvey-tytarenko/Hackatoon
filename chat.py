@@ -14,11 +14,18 @@ def get_text_from_url(url):
         response.raise_for_status()  # Sprawdzenie, czy nie wystąpił błąd HTTP
         soup = BeautifulSoup(response.content, "html.parser")
 
-        # Pobieranie tekstu ze strony, wyłączając skrypty i style
-        for script_or_style in soup(["script", "style"]):
-            script_or_style.extract()  # Usuwa skrypty i style
+        # Sprawdzenie, czy istnieje znacznik <article>
+        article = soup.find("article")
 
-        text = soup.get_text()  # Pobieranie całego tekstu
+        if article:
+            # Pobieranie tekstu tylko z <article>
+            text = article.get_text()
+        else:
+            # Jeśli nie ma znacznika <article>, pobieramy cały tekst strony
+            for script_or_style in soup(["script", "style"]):
+                script_or_style.extract()  # Usuwa skrypty i style
+
+            text = soup.get_text()  # Pobieranie całego tekstu
 
         # Czyszczenie tekstu, usuwanie białych znaków
         lines = (line.strip() for line in text.splitlines())
