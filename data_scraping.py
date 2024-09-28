@@ -5,10 +5,16 @@ from langchain.docstore.document import Document
 import spacy
 from langchain_text_splitters import CharacterTextSplitter
 import os
+import openai
 from dotenv import load_dotenv, dotenv_values
 load_dotenv()
 
-openai_api_key = dotenv_values("OPENAI_API_KEY")
+api_key = dotenv_values().get("OPENAI_API_KEY")
+
+openai.api_key = api_key
+
+client = openai.OpenAI(api_key=api_key)
+
 
 def scrape():
     url = "https://www.podatki.gov.pl/pcc-sd/rozliczenie-podatku-pcc-od-kupna-samochodu/"
@@ -33,12 +39,19 @@ def preprocess(combined_text):
     return texts
 
 def vectorize(texts):
-
+    responses = {}
+    for text in texts:
+        resp = client.embeddings.create(
+        input = texts[0],
+        model = "text-embedding-ada-002"
+        )
+        responses[text] = resp.data[0]
+    return responses
 
 
 paragraphs = scrape()
 preprocessed = preprocess(paragraphs)
-
+responses = vectorize(preprocessed)
 
 
 
