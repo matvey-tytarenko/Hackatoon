@@ -251,8 +251,12 @@ print("SLAWEK:\n", slawek_response, "\n")
 if (slawek_response == "Pytanie"):
     while (slawek_response == "Pytanie"):
         user_input = input("Pytanie? >")
-        pytia_response = gpt_call(GPT4o, PROMPT_PANI_PYTIA, user_input)
 
+        relevant_db_entries = data_base.retrieve_relevant_chunks(user_input)
+        additional_info = "\n".join(relevant_db_entries)
+        PROMPT_PANI_PYTIA += additional_info
+
+        pytia_response = gpt_call(GPT4o, PROMPT_PANI_PYTIA, user_input)
         slawek_input=basia_response+input(">")
         slawek_response = gpt_call(GPT4o, PROMPT_PAN_SLAWEK, slawek_input)
 
