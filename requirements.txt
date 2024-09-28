@@ -1,0 +1,7 @@
+openai
+xmlschema
+lxml
+BeautifulSoup
+requests
+bs4
+googlesearch-python
