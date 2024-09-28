@@ -4,8 +4,7 @@ import os
 
 import requests
 from bs4 import BeautifulSoup
-from googlesearch import search
-
+#from googlesearch import search
 
 def get_text_from_url(url):
     """Pobiera treść strony z URL i zwraca jako tekst"""
@@ -14,18 +13,11 @@ def get_text_from_url(url):
         response.raise_for_status()  # Sprawdzenie, czy nie wystąpił błąd HTTP
         soup = BeautifulSoup(response.content, "html.parser")
 
-        # Sprawdzenie, czy istnieje znacznik <article>
-        article = soup.find("article")
+        # Pobieranie tekstu ze strony, wyłączając skrypty i style
+        for script_or_style in soup(["script", "style"]):
+            script_or_style.extract()  # Usuwa skrypty i style
 
-        if article:
-            # Pobieranie tekstu tylko z <article>
-            text = article.get_text()
-        else:
-            # Jeśli nie ma znacznika <article>, pobieramy cały tekst strony
-            for script_or_style in soup(["script", "style"]):
-                script_or_style.extract()  # Usuwa skrypty i style
-
-            text = soup.get_text()  # Pobieranie całego tekstu
+        text = soup.get_text()  # Pobieranie całego tekstu
 
         # Czyszczenie tekstu, usuwanie białych znaków
         lines = (line.strip() for line in text.splitlines())
@@ -78,10 +70,17 @@ def google_search_with_content(query):
 
     return results
 
+def gpt_call(model, prompt, message):
+    client = OpenAI(api_key=OPEN_API_KEY)
 
-
-
-
+    completion = client.chat.completions.create(
+      model=model,
+      messages=[
+        {"role": "system", "content": prompt},
+        {"role": "user", "content": message}
+      ]
+    )
+    return completion.choices[0].message.content
 
 GPT4o="gpt-4o"
 GPT4omini="gpt-4o-mini"
@@ -241,25 +240,46 @@ Summary:
 As Pytia, your mission is to interact with the user by asking one question at a time to collect all the necessary information for the PCC-3 declaration. Maintain professionalism and focus strictly on topics related to finances, business, or taxes. Always default to Polish unless the user communicates in another language.
 """
 
-message_content = ""
+basia_response = gpt_call(GPT4o, PROMPT_PANI_BASIA, "Kupiłem niedawno samochów, co mam z tym zrobić?")
+print("BASIA:\n", basia_response, "\n")
 
-client = OpenAI(api_key=OPEN_API_KEY)
+slawek_input=basia_response+input(">")
+slawek_response = gpt_call(GPT4o, PROMPT_PAN_SLAWEK, slawek_input)
+print("SLAWEK:\n", slawek_response, "\n")
 
-completion = client.chat.completions.create(
-  model=GPT4o,
-  messages=[
-    {"role": "user", "content": message_content}
-  ]
-)
-szukaj="haslo do wyszukania"
-wyszukane=google_search_with_content(szukaj)
+# Keep talking with Pytia
+if (slawek_response == "Pytanie"):
+    while (slawek_response == "Pytanie"):
+        user_input = input("Pytanie? >")
+        pytia_response = gpt_call(GPT4o, PROMPT_PANI_PYTIA, user_input)
 
-# Wyświetlenie wyników
-for index, result in enumerate(wyszukane):
-    print(f"Wynik {index + 1}: {result['url']}")
-    print(f"Treść:\n{result['content']}\n")
-odp=completion.choices[0].message.content
-odp.append(wyszukane)
+        slawek_input=basia_response+input(">")
+        slawek_response = gpt_call(GPT4o, PROMPT_PAN_SLAWEK, slawek_input)
+
+# Gather data for xml
+user_responses = []
+andrzej_response = ""
+first = 0
+while (andrzej_response != "Koniec"):
+        first = 1
+        if first == 1:
+            user_responses = input(">")
+
+        andrzej_response = gpt_call(GPT4o, PROMPT_PAN_ANDRZEJ, user_responses)
+        print(andrzej_response)
+
+print(user_responses)
+
+# Search from web
+#while (slawek_response == "Inne"):
+#    szukaj=basia_response
+#    wyszukane=google_search_with_content(szukaj)
+#    content = ""
+#    for index, result in enumerate(wyszukane):
+#        content+=result['content']
+#
+#    pytia_response = gpt_call(GPT4omini, "Skroc podany tekst", content)
+
+
 #print(completion.json())
 #print(completion.choices[0].message.content)
-print(odp)
