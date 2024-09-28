@@ -72,14 +72,9 @@ def google_search_with_content(query):
     return results
 
 
-# Przykład użycia:
-query = "Jak zapłacić podatek przy kupnie samochodu?"
-search_results = google_search_with_content(query)
 
-# Wyświetlenie wyników
-for index, result in enumerate(search_results):
-    print(f"Wynik {index + 1}: {result['url']}")
-    print(f"Treść:\n{result['content']}\n")
+
+
 
 GPT4o="gpt-4o"
 GPT4omini="gpt-4o-mini"
@@ -251,6 +246,11 @@ completion = client.chat.completions.create(
 )
 szukaj="haslo do wyszukania"
 wyszukane=google_search_with_content(szukaj)
+
+# Wyświetlenie wyników
+for index, result in enumerate(wyszukane):
+    print(f"Wynik {index + 1}: {result['url']}")
+    print(f"Treść:\n{result['content']}\n")
 odp=completion.choices[0].message.content
 odp.append(wyszukane)
 #print(completion.json())
