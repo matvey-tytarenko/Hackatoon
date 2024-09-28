@@ -53,7 +53,7 @@ def populate():
             ids=[f"chunk_{i}" for i in range(len(text_chunks))]
         )
 
-    for url in urls:
+    for url in URLS:
         add_website_to_db(url)
 
 
