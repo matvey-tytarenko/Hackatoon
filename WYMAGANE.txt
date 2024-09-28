@@ -1,0 +1,24 @@
+1. Okres, miejsce i cel składania deklaracji:
+- Data dokonania czynności
+- Urząd, do którego jest adresowana deklaracja
+- Cel złożenia deklaracji
+
+2. Dane podatnika dokonującego zapłaty lub zwolnionego z podatku na podstawie art. 9 pkt 10 lit. B ustawy:
+- Podmiot składający deklarację
+- Identyfikator podatkowy NIP
+- Nazwa pełna
+- Nazwa skrócona
+- Kraj            POLSKA
+- Województwo
+- Powiat
+- Gmina
+- Miejscowość
+- Numer domu
+- Kod pocztowy
+
+3. Przedmiot opodatkowania i treść czynności cywilnoprawnej:
+- Przedmiot opodatkowania
+- Zwięzłe określenie treści i przedmiotu czynności cywilnoprawnej
+
+4. Podatek do zapłaty:
+- Kwota Podatku do zapłaty
