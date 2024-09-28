@@ -1,53 +1,48 @@
 import requests
 from bs4 import BeautifulSoup
 
-
-# Funkcja, która sprawdza, czy po danym headerze są headery niższego stopnia
-def has_lower_headers(soup, current_header):
-    current_level = int(current_header.name[1])
-    next_elements = current_header.find_all_next(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
-
-    for element in next_elements:
-        level = int(element.name[1])
-        if level > current_level:
-            return True
-        elif level == current_level:
-            break
-    return False
-
-
-# Funkcja do scrapowania i przetwarzania tekstu
+# Funkcja do parsowania strony i zwracania tekstu według opisu
 def scrape_and_process(url):
-    # Pobieramy stronę
+    # Pobranie zawartości strony
     response = requests.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
+    soup = BeautifulSoup(response.content, 'html.parser')
 
-    # Szukamy wszystkich nagłówków i paragrafów
-    headers = soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
+    # Zmienne do przechowywania wyniku
     result = []
 
-    for header in headers:
-        if not has_lower_headers(soup, header):
-            header_text = header.get_text(strip=True)
-            content = []
-            next_sibling = header.find_next_sibling()
-            while next_sibling and next_sibling.name != header.name:
-                if next_sibling.name == 'p':
-                    content.append(next_sibling.get_text(strip=True))
-                next_sibling = next_sibling.find_next_sibling()
+    # Pobieranie całego tekstu ze strony
+    full_text = soup.get_text(separator=' ', strip=True)
 
-            # Łączenie headera z paragrafami
-            if content:
-                combined_content = f"{header_text}: {' '.join(content)}"
-                result.append(combined_content)
+    # Nagłówki od h1 do h6
+    headers = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']
 
-    return result
+    # Przechowywanie poprzedniego nagłówka
+    previous_header = None
+    previous_level = None
+
+    # Przechodzenie przez elementy w dokumencie HTML
+    for element in soup.find_all(headers + ['p']):
+        if element.name in headers:
+            # Sprawdzamy poziom nagłówka (np. 'h1' = 1, 'h2' = 2, itd.)
+            current_level = int(element.name[1])
 
 
-# Przykład użycia
-url = 'https://example.com'
-processed_content = scrape_and_process(url)
+            if previous_header:
+                result.append(previous_header)  # Dodaj poprzedni nagłówek do wyniku
+                previous_header = element.get_text()
+                previous_level = current_level
+        elif element.name == 'p':
+            if previous_header:
+                # Połącz nagłówek z paragrafem i dodaj do wyniku
+                result.append(f"{previous_header}: {element.get_text()}")
+                previous_header = None  # Zerowanie nagłówka po jego użyciu
 
-# Wyświetlenie wyniku
-for section in processed_content:
-    print(section)
+    # Zwrócenie wynikowego tekstu
+    return "\n".join(result)
+
+# URL strony do przetworzenia
+url = "https://www.podatki.gov.pl/pcc-sd/rozliczenie-podatku-pcc-od-kupna-samochodu/"
+
+# Uruchomienie funkcji i wyświetlenie wyników
+output = scrape_and_process(url)
+print(output)
