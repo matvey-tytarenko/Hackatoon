@@ -1,8 +1,24 @@
 "'use client'";
 
 import { Button } from "../components/ui/button";
+import { useState} from "react";
+import { useNavigate} from "react-router-dom";
+import api from "../service/API.ts";
 
 export function Page() {
+  const navigate = useNavigate();
+
+  const [session, setSession] = useState(1);
+
+  const createTicket = async () => {
+    const API = api();
+    // alert("Hello World!");
+    // Request
+    const ticket = await API.createSession();
+    setSession(ticket);
+    alert(session);
+    navigate(":ticketorder");
+  };
   return (
     <div
       className=" relative bg-cover bg-center bg-no-repeat"
@@ -21,7 +37,7 @@ export function Page() {
       >
         <Button
           className="w-16 h-16 text-lg font-medium bg-transparent border-black hover:bg-transparent hover:border-lime-100"
-          onClick={() => alert("basia zara zadzwoni")}
+          onClick={createTicket}
           style={{ borderRadius: "50%" }}
         ></Button>
       </div>
