@@ -1,14 +1,20 @@
 import axios from "axios";
 
-const api_endpoint = "";
+const ip = " http://10.250.161.31:3000/get_ticket";
 export default () => {
   return {
     createSession: async function () {
-      // const res = await axios.post('localhost:8080/create_session', {  });
-      // const ticketnumber = res.token
-      const ticketNumber = 123;
-      return ticketNumber;
-      
+      const res = await axios.post(ip, {});
+      const ticketnumber = res.data.ticket_number;
+      console.log(ticketnumber);
+      return ticketnumber;
     },
+    // askQuestion: async function (ticketnumber, question) {
+    //   const res = await axios.post("http://10.250.160.78:3000/ask", {
+    //     ticket_number: ticketnumber,
+    //     question: question,
+    //   });
+    //   return res.data;
+    // },
   };
 };

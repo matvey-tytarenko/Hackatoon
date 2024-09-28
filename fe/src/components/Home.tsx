@@ -1,23 +1,36 @@
 "'use client'";
 
 import { Button } from "../components/ui/button";
-import { useState} from "react";
-import { useNavigate} from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../service/API.ts";
+import axios from "axios";
 
 export function Page() {
   const navigate = useNavigate();
 
   const [session, setSession] = useState(1);
 
+  const sendData = () => {
+    const payload = { name: "React" };
+    axios
+      .post("http://localhost:5000/api/data")
+      .then((response) => {
+        console.log("Response from server:", response.data);
+      })
+      .catch((error) => {
+        console.error("Error sending data:", error);
+      });
+  };
+
   const createTicket = async () => {
     const API = api();
-    // alert("Hello World!");
-    // Request
+    const data = await sendData();
+    console.log(data);
     const ticket = await API.createSession();
     setSession(ticket);
     alert(session);
-    navigate(":ticketorder");
+    navigate("/waiting");
   };
   return (
     <div
