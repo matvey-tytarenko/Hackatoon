@@ -6,6 +6,10 @@ body {
 
 }
 
+.user-icon {
+    font-size: 50px;
+}
+
 .title {
     font-family: 'M PLUS 1 Code', sans-serif;
     text-align: center;
