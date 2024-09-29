@@ -8,3 +8,4 @@ langchain
 xmlschema
 onnxruntime
 googlesearch-python
+flask
