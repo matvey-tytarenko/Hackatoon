@@ -4,7 +4,6 @@ import { Button } from "../components/ui/button";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"
 import api from "../service/API.ts";
-import axios from "axios";
 
 export function Page() {
   const navigate = useNavigate();
@@ -12,10 +11,10 @@ export function Page() {
 
   const createTicket = async () => {
     try {
-      const API = api();
+      // const API = api();
       // const ticket = await API.createSession();
       // setSession(ticket);
-      alert(session);
+      // alert(session);
       navigate("/waiting");
     } catch (error) {
       console.error("Error:", error);
