@@ -114,7 +114,7 @@ Language Preference: You speak mainly and by default in Polish. If the user star
 Primary Function: Your main purpose is to determine if a user wants to have their question answered or if they want to fulfill a tax declaration.
 
 If it's a tax declaration, you should return the word "Formularz" and nothing more.
-If it's a question, you should return "Pytanie" and nothing more.
+If it's a question, you should return "Pytanie" and nothing more. If it's meaningless, like a welcome or similar, it also counts as a question.
 If you can't classify the task as either, you should return "Inne".
 You are an AI assistant focused solely on finances, business, or taxes. Your primary goal is to provide accurate and relevant information related to this topic.
 Instructions:
@@ -192,7 +192,8 @@ Urząd skarbowy do którego składasz deklarację.
 Identyfikator podatkowy: NIP lub PESEL (jeśli prowadzisz działalność gospodarczą podaj NIP, jeśli nie prowadzisz działalności gospodarczej podaj PESEL).
 Completion:
 
-If you've already obtained all the needed information, you should return "Koniec" and return nothing more.
+IMPORTANT: If the user wants to complete filling the form early, let them. Ask if they want it if you have acquired lots, or enough, of information. 
+If you've already obtained the needed information, you should return "Koniec" and return nothing more.
 Language Preference:
 
 You should speak mainly and by default in Polish.
@@ -269,7 +270,7 @@ System Prompt for AI Agent "Pytia":
 
 Role and Function:
 
-You are Pytia, an AI assistant focused solely on finances, business, and taxes. Your primary goal is to use all the information you have to answer the user's questions as precisely and thoroughly as possible.
+You are Basia, a female AI assistant focused solely on finances, business, and taxes. Your primary goal is to use all the information you have to answer the user's questions as precisely and thoroughly as possible.
 
 Instructions:
 
@@ -355,7 +356,7 @@ własności,
 Jeżeli nie jest to żadna z wymienionych wyżej (np. zwykła faktura) użytkownik nie musi wypełniać formularza PPC-3. Poinformuj go o tym.
 
 
-Inne bardzo istotne informacje:
+Inne bardzo, bardzo istotne informacje:
 
 """
 PROMPT_PAN_MARIAN="""
@@ -594,12 +595,9 @@ Using the above data, generate an XML code file that conforms to the schema and 
 """
 
 
-user_input = "Jakie mamy podatki?"
-# user_input = "Kupiłem niedawno samochód za 10000 zł, co mam z tym zrobić? Czyt musze zapłacić jakiś podatek? Lub coś wypełnić?"
 
+user_input = input("Zadaj pytanie Pani Basi, twojej asystentce:\n")
 slawek_response = gpt_call(GPT4o, PROMPT_PAN_SLAWEK, user_input)
-
-print("SLAWEK:\n", slawek_response, "\n")
 
 conversation = user_input
 # Keep talking with Pytia
@@ -609,13 +607,12 @@ while (slawek_response == "Pytanie"):
     pytia_response = gpt_call(GPT4o, prompt, conversation)
     conversation += pytia_response
 
-    print("PYTIA:\n", pytia_response, "\n")
+    print("\n", pytia_response, "\n")
 
-    slawek_input=conversation+input(">")
+    slawek_input=conversation+input("> ")
     conversation = slawek_input
     slawek_response = gpt_call(GPT4o, PROMPT_PAN_SLAWEK, slawek_input)
 
-print("WYCHODZĘ z \"Pytania\"")
 
 # Gather data for xml
 user_responses = []
@@ -626,7 +623,7 @@ while (andrzej_response != "Koniec"):
     user_responses.append(response)
     andrzej_response = gpt_call(GPT4o, PROMPT_PAN_ANDRZEJ, "".join(user_responses))
     print(andrzej_response)
-    response = input(">")
+    response = input("> ")
 
 
 print(user_responses)
