@@ -11,7 +11,7 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
      <Routes>
       <Route path='/' element={<App />} />
-      <Route path=':ticketorder' element={<Chat />} />
+      <Route path='/chat' element={<Chat />} />
       <Route path='/waiting' element={<WaitingRoom />} />
      </Routes>
     </BrowserRouter>

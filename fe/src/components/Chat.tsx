@@ -6,7 +6,7 @@ import { Input } from "../components/ui/input";
 import { ScrollArea } from "../components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 
-function Page() {
+function ChatPage() {
   const [messages, setMessages] = useState([
     { id: 1, text: "Hello! How can I help you today?", sender: "bot" },
     { id: 2, text: "I have a question about React hooks.", sender: "user" },
@@ -62,4 +62,4 @@ function Page() {
   )
 }
 
-export default Page;
+export default ChatPage;

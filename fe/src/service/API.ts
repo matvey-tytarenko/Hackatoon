@@ -1,10 +1,10 @@
 import axios from "axios";
 
-const ip = " http://10.250.161.31:3000/get_ticket";
+const ip = "https://data.danihek.xyz/API.ts";
 export default () => {
   return {
     createSession: async function () {
-      const res = await axios.post(ip, {});
+      const res = await axios.get(ip);
       const ticketnumber = res.data.ticket_number;
       console.log(ticketnumber);
       return ticketnumber;
