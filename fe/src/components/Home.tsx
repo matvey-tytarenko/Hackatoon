@@ -11,11 +11,11 @@ export function Page() {
 
   const createTicket = async () => {
     try {
-      // const API = api();
-      // const ticket = await API.createSession();
-      // setSession(ticket);
-      // alert(session);
       navigate("/waiting");
+      const API = api();
+      const ticket = await API.createSession();
+      setSession(ticket);
+      alert(session);
     } catch (error) {
       console.error("Error:", error);
     }
