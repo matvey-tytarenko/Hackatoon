@@ -24,6 +24,7 @@ function ChatPage() {
         { id: messages.length + 1, text: newMessage, sender: "user" },
       ];
       setMessages(updatedMessages);
+      setNewMessage(""); // Clear field
 
       try {
         const api = API();
@@ -34,9 +35,8 @@ function ChatPage() {
           { id: messages.length + 1, text: answer, sender: "bot" },
         ];
         setMessages(updatedMessages2);
-        setNewMessage(""); // Clear field
       } catch (error) {
-        console.error("Ошибка при отправке сообщения:", error);
+        console.error("Error:", error);
       }
     }
   };
