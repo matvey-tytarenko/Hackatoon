@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document
 import os
-import spacy
 from langchain_text_splitters import CharacterTextSplitter
 import openai
 import chromadb
