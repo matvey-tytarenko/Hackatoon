@@ -1,6 +1,8 @@
 lxml
 onnx
+flask
 openai
+flask_cors
 beautifulsoup4
 chromadb
 requests

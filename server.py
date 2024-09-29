@@ -1,62 +1,58 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify, request
+from flask_cors import CORS  # Import CORS
 import uuid
-import time
+from chatv1 import dawaj_odpowiedz
+
+tickets = []
+
+def generate_ticket():
+    ticket = str(uuid.uuid4())
+    tickets.append(ticket)
+    return ticket
 
 app = Flask(__name__)
+CORS(app)
 
-# A dictionary to store tickets and their expiration time
-tickets = {}
+#@app.route('/get_ticket', methods=['GET'])
+#def get_data():
+#    ticket = generate_ticket()
+#    tickets.append(ticket)
+#    response_data = {
+#        "message": ticket,
+#        "status": "success",
+#        "code": 200
+#    }
+#    return jsonify(response_data)
 
-# Ticket validity duration in seconds (1 minute)
-TICKET_VALIDITY_DURATION = 60
-
-
-# Function to generate a new ticket
-def generate_ticket():
-    ticket_id = str(uuid.uuid4())  # Generate unique ticket using uuid
-    expiration_time = time.time() + TICKET_VALIDITY_DURATION
-    tickets[ticket_id] = expiration_time
-    return ticket_id
-
-
-# Route to handle /getticket request
-@app.route('/getticket', methods=['POST'])
-def get_ticket():
-    # Generate a new ticket
-    ticket_id = generate_ticket()
-    return jsonify({"ticket": ticket_id, "message": "Ticket generated successfully."}), 200
-
-
-# Helper function to check if the ticket is valid
-def is_ticket_valid(ticket_id):
-    if ticket_id in tickets:
-        expiration_time = tickets[ticket_id]
-        current_time = time.time()
-        if current_time <= expiration_time:
-            return True
-        else:
-            del tickets[ticket_id]  # Ticket expired, so remove it
-    return False
-
-
-# Route to handle /ticketid/askquestion requests
-@app.route('/<ticket_id>/askquestion', methods=['POST'])
-def ask_question(ticket_id):
-    # Validate the ticket
-    if is_ticket_valid(ticket_id):
-        # Get the question from the request
+@app.route('/ask', methods=['POST'])
+def post_data():
+    try:
+        # Try to get JSON data from request
         data = request.get_json()
-        question = data.get('question', None)
 
-        if not question:
-            return jsonify({"error": "No question provided."}), 400
+        if data is None or 'message' not in data:
+            # Return an error if the data is not valid
+            return jsonify({
+                "message": "Invalid request. 'message' field is required.",
+                "status": "fail",
+                "code": 400
+            }), 400
 
-        # Process the question (you can modify this logic as needed)
-        return jsonify({"message": "Question received successfully.", "question": question}), 200
-    else:
-        return jsonify({"error": "Invalid or expired ticket."}), 403
+        # If everything is okay, proceed
+        response_data = {
+            "message": dawaj_odpowiedz(data.get('message')),
+            "status": "success",
+            "code": 200
+        }
+        return jsonify(response_data), 200
 
+    except Exception as e:
+        # Return an error response in case of an exception
+        return jsonify({
+            "message": f"An error occurred: {str(e)}",
+            "status": "error",
+            "code": 500
+        }), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
-
+    app.run(debug=True, port=5000)
