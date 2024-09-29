@@ -4,7 +4,7 @@ import os
 
 import requests
 from bs4 import BeautifulSoup
-#from googlesearch import search
+from googlesearch import search
 import data_base
 from dotenv import load_dotenv, dotenv_values
 load_dotenv()
@@ -146,6 +146,7 @@ Jeżeli nie jest to żadna z wymienionych wyżej (np. zwykła faktura) użytkown
 PROMPT_PAN_ANDRZEJ = """Role and Function:
 
 You are Andrzej, an AI assistant focused solely on finances, business, and taxes. Your primary goal is to gather all the necessary information to fill out the PCC-3 declaration (DEKLARACJA W SPRAWIE PODATKU OD CZYNNOŚCI CYWILNOPRAWNYCH) by proposing questions to the user.
+When you start conversation, you HAVE to introduce yourself.
 
 Instructions:
 
@@ -193,7 +194,7 @@ Identyfikator podatkowy: NIP lub PESEL (jeśli prowadzisz działalność gospoda
 Completion:
 
 IMPORTANT: If the user wants to complete filling the form early, let them. Ask if they want it if you have acquired lots, or enough, of information. 
-If you've already obtained the needed information, you should return "Koniec" and return nothing more.
+If you've already obtained the needed information, you should return "Koniec" and return nothing more. NOTHING MORE. ONLY WORD "Koniec".
 Language Preference:
 
 You should speak mainly and by default in Polish.
@@ -262,7 +263,8 @@ Wartość 1 oznacza potwierdzenie zapoznania się z treścią i akceptację poni
 Za podanie nieprawdy lub zatajenie prawdy i przez to narażenie podatku na uszczuplenie grozi odpowiedzialność przewidziana w Kodeksie karnym skarbowym.
 
 W przypadku niezapłacenia w obowiązującym terminie kwoty podatku od czynności cywilnoprawnych z poz. 53 lub wpłacenia jej w niepełnej wysokości, niniejsza deklaracja stanowi podstawę do wystawienia tytułu wykonawczego, zgodnie z przepisami ustawy z dnia 17 czerwca 1966 r. o postępowaniu egzekucyjnym w administracji (Dz. U. z 2023 r. poz. 2505).
-If you've already obtained all the needed information, you should return "Koniec" and nothing more.
+IMPORTANT: If the user wants to complete filling the form early, let them. Ask if they want it if you have acquired lots, or enough, of information. 
+If you've already obtained all the needed information, you should return "Koniec" and nothing more. NOTHING MORE. ONLY WORD "Koniec".
 """
 
 PROMPT_PANI_PYTIA = """
@@ -597,47 +599,58 @@ Using the above data, generate an XML code file that conforms to the schema and 
 
 
 user_input = input("Zadaj pytanie Pani Basi, twojej asystentce:\n")
+
 slawek_response = gpt_call(GPT4o, PROMPT_PAN_SLAWEK, user_input)
-
 conversation = user_input
-# Keep talking with Pytia
-while (slawek_response == "Pytanie"):
-    basia_response = gpt_call(GPT4o, PROMPT_PANI_BASIA, conversation)
-    prompt = PROMPT_PANI_PYTIA + "\n".join(data_base.retrieve_relevant_chunks(basia_response))
-    pytia_response = gpt_call(GPT4o, prompt, conversation)
-    conversation += pytia_response
 
-    print("\n", pytia_response, "\n")
-
-    slawek_input=conversation+input("> ")
-    conversation = slawek_input
-    slawek_response = gpt_call(GPT4o, PROMPT_PAN_SLAWEK, slawek_input)
-
-
-# Gather data for xml
 user_responses = []
-response =""
-andrzej_response = ""
 
-while (andrzej_response != "Koniec"):
-    user_responses.append(response)
-    andrzej_response = gpt_call(GPT4o, PROMPT_PAN_ANDRZEJ, "".join(user_responses))
-    print(andrzej_response)
-    response = input("> ")
+while True:
+    print(slawek_response)
+    match slawek_response:
+        case "Pytanie":
+            basia_response = gpt_call(GPT4o, PROMPT_PANI_BASIA, conversation)
+            prompt = PROMPT_PANI_PYTIA + "\n".join(data_base.retrieve_relevant_chunks(basia_response))
+            pytia_response = gpt_call(GPT4o, prompt, conversation)
+            conversation += pytia_response
+            print("\n", pytia_response, "\n")
+
+            slawek_input = conversation + "\n" + input("> ")
+            conversation = slawek_input
+            slawek_response = gpt_call(GPT4o, PROMPT_PAN_SLAWEK, slawek_input)
+        case "Formularz":
+            response = ""
+            andrzej_response = ""
+            if slawek_response == "Formularz":
+                while (andrzej_response.strip() != "Koniec"):
+                    user_responses.append(response)
+                    andrzej_response = gpt_call(GPT4o, PROMPT_PAN_ANDRZEJ, "".join(user_responses))
+                    print(andrzej_response)
+                    if andrzej_response.strip() != "Koniec":
+                        response = input("> ")
+            break   # wyjście z pętli
+        case "Inne":
+            szukaj = conversation
+            wyszukane = google_search_with_content(szukaj)
+            content = ""
+            for index, result in enumerate(wyszukane):
+                content += result['content']
+
+            pytia_response = gpt_call(GPT4omini, "Skróć podany tekst", content)
+            conversation += pytia_response
+            print(pytia_response)
+            slawek_input = conversation + input("> ")
+            conversation = slawek_input
+            slawek_response = gpt_call(GPT4o, PROMPT_PAN_SLAWEK, slawek_input)
+        case _:
+            basia_response = gpt_call(GPT4omini, PROMPT_PANI_BASIA, "Powiedz żeby powtórzyć pytanie, bo nie pasowało do żadnej kategorii")
+            print("\n",basia_response, "\n")
+            response = conversation + input("> ")
+            slawek_response = gpt_call(GPT4o, PROMPT_PAN_SLAWEK, response)
 
 
-print(user_responses)
-marian_response=gpt_call(GPT4o,PROMPT_PAN_MARIAN, user_responses)
-# Search from web
-#while (slawek_response == "Inne"):
-#    szukaj=basia_response
-#    wyszukane=google_search_with_content(szukaj)
-#    content = ""
-#    for index, result in enumerate(wyszukane):
-#        content+=result['content']
-#
-#    pytia_response = gpt_call(GPT4omini, "Skroc podany tekst", content)
+# wyjście mariana po wypełnieniu formularza
+print("Generowanie Deklaracji XML")
+marian_response=gpt_call(GPT4o,PROMPT_PAN_MARIAN, "".join(user_responses))
+print(marian_response)
 
-
-#print(completion.json())
-#print(completion.choices[0].message.content)
