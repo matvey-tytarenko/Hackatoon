@@ -355,7 +355,7 @@ własności,
 Jeżeli nie jest to żadna z wymienionych wyżej (np. zwykła faktura) użytkownik nie musi wypełniać formularza PPC-3. Poinformuj go o tym.
 
 
-Inne istotne informacje:
+Inne bardzo istotne informacje:
 
 """
 PROMPT_PAN_MARIAN="""
@@ -594,36 +594,40 @@ Using the above data, generate an XML code file that conforms to the schema and 
 """
 
 
-basia_response = gpt_call(GPT4o, PROMPT_PANI_BASIA, "Kupiłem niedawno samochód za 10000 zł, co mam z tym zrobić? Czyt musze zapłacić jakiś podatek? Lub coś wypełnić?")
-print("BASIA:\n", basia_response, "\n")
+user_input = "Jakie mamy podatki?"
+# user_input = "Kupiłem niedawno samochód za 10000 zł, co mam z tym zrobić? Czyt musze zapłacić jakiś podatek? Lub coś wypełnić?"
 
-slawek_input=basia_response+input(">")
-slawek_response = gpt_call(GPT4o, PROMPT_PAN_SLAWEK, slawek_input)
+slawek_response = gpt_call(GPT4o, PROMPT_PAN_SLAWEK, user_input)
+
 print("SLAWEK:\n", slawek_response, "\n")
 
+conversation = user_input
 # Keep talking with Pytia
-if (slawek_response == "Pytanie"):
-    while (slawek_response == "Pytanie"):
-        user_input = input("Pytanie? >")
+while (slawek_response == "Pytanie"):
+    basia_response = gpt_call(GPT4o, PROMPT_PANI_BASIA, conversation)
+    prompt = PROMPT_PANI_PYTIA + "\n".join(data_base.retrieve_relevant_chunks(basia_response))
+    pytia_response = gpt_call(GPT4o, prompt, conversation)
+    conversation += pytia_response
 
-        prompt = PROMPT_PANI_PYTIA + "\n".join(data_base.retrieve_relevant_chunks(user_input))
-        pytia_response = gpt_call(GPT4o, prompt, user_input)
+    print("PYTIA:\n", pytia_response, "\n")
 
-        slawek_input=basia_response+input(">")
-        slawek_response = gpt_call(GPT4o, PROMPT_PAN_SLAWEK, slawek_input)
+    slawek_input=conversation+input(">")
+    conversation = slawek_input
+    slawek_response = gpt_call(GPT4o, PROMPT_PAN_SLAWEK, slawek_input)
+
+print("WYCHODZĘ z \"Pytania\"")
 
 # Gather data for xml
 user_responses = []
 response =""
 andrzej_response = ""
-first = 0
+
 while (andrzej_response != "Koniec"):
-        first = 1
-        if first == 1:
-            response = input(">")
-        user_responses.append(response)
-        andrzej_response = gpt_call(GPT4o, PROMPT_PAN_ANDRZEJ, "".join(user_responses))
-        print(andrzej_response)
+    user_responses.append(response)
+    andrzej_response = gpt_call(GPT4o, PROMPT_PAN_ANDRZEJ, "".join(user_responses))
+    print(andrzej_response)
+    response = input(">")
+
 
 print(user_responses)
 marian_response=gpt_call(GPT4o,PROMPT_PAN_MARIAN, user_responses)
