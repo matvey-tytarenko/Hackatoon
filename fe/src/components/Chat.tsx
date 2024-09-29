@@ -6,8 +6,9 @@ import axios from "axios";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { ScrollArea } from "../components/ui/scroll-area";
-import './Chat.css'
+import "./Chat.css";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
+import API from "../service/API";
 
 function ChatPage() {
   const [messages, setMessages] = useState([
@@ -23,12 +24,17 @@ function ChatPage() {
         { id: messages.length + 1, text: newMessage, sender: "user" },
       ];
       setMessages(updatedMessages);
-      setNewMessage(""); // Clear field
 
       try {
-        await axios.post("https://api.danihek.xyz/ask", {
-          message: newMessage, // Добавьте параметры по необходимости
-        });
+        const api = API();
+        const answer = await api.askQuestion(newMessage.trim());
+
+        const updatedMessages2 = [
+          ...updatedMessages,
+          { id: messages.length + 1, text: answer, sender: "bot" },
+        ];
+        setMessages(updatedMessages2);
+        setNewMessage(""); // Clear field
       } catch (error) {
         console.error("Ошибка при отправке сообщения:", error);
       }
@@ -49,11 +55,11 @@ function ChatPage() {
               className="w-40"
             />
           </div>
-          <div className="right">
+          <div className="right bottom-24">
             <img
-              src="https://media.discordapp.net/attachments/1289511299524329562/1289833215586205756/DALLE_2024-09-29_08.16.29_-_A_modern_robotic_version_of_the_Polish_eagle_with_a_golden_metallic_body_and_a_shining_crown_symbolizing_strength_and_technology._The_eagle_should_.webp?ex=66fa424a&is=66f8f0ca&hm=c0e10d4525a38c6bfb603f97717e551803d7accf9560c3763f3d01751d2c7cf1&=&animated=true&width=905&height=905"
+              src="https://media.discordapp.net/attachments/1289511299524329562/1289858044456603731/Logo_HQ.png?ex=66fa596a&is=66f907ea&hm=a3adfa47b0769d9d04d626a789039f17f1cec80a955cfded2bbd70ec0388ce4f&=&format=webp&quality=lossless&width=905&height=905"
               alt=""
-              className="w-40"
+              className="w-28"
             />
           </div>
         </header>
