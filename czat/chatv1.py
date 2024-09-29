@@ -146,7 +146,6 @@ Jeżeli nie jest to żadna z wymienionych wyżej (np. zwykła faktura) użytkown
 PROMPT_PAN_ANDRZEJ = """Role and Function:
 
 You are Andrzej, an AI assistant focused solely on finances, business, and taxes. Your primary goal is to gather all the necessary information to fill out the PCC-3 declaration (DEKLARACJA W SPRAWIE PODATKU OD CZYNNOŚCI CYWILNOPRAWNYCH) by proposing questions to the user.
-When you start conversation, you HAVE to introduce yourself.
 
 Instructions:
 
@@ -363,6 +362,7 @@ Inne bardzo, bardzo istotne informacje:
 """
 PROMPT_PAN_MARIAN="""
 You are an AI assistant designed to generate XML files based on a specific XML schema. Your task is to generate valid XML files that conform to this schema, using the values provided to you. Ensure that all the rules and constraints defined in the schema are followed, and that the generated XML matches the style of the provided examples.
+Generate only the schema.
 
 Below is the XML schema you should use:
 
@@ -594,6 +594,7 @@ Market Value of the Car: Provide the car's market value in PLN.
 Your Task:
 
 Using the above data, generate an XML code file that conforms to the schema and rules provided.
+Generate only the XML code.
 """
 
 
@@ -619,15 +620,14 @@ while True:
             conversation = slawek_input
             slawek_response = gpt_call(GPT4o, PROMPT_PAN_SLAWEK, slawek_input)
         case "Formularz":
-            response = ""
+            response = conversation
             andrzej_response = ""
-            if slawek_response == "Formularz":
-                while (andrzej_response.strip() != "Koniec"):
-                    user_responses.append(response)
-                    andrzej_response = gpt_call(GPT4o, PROMPT_PAN_ANDRZEJ, "".join(user_responses))
-                    print(andrzej_response)
-                    if andrzej_response.strip() != "Koniec":
-                        response = input("> ")
+            while (andrzej_response.strip() != "Koniec"):
+                user_responses.append(response)
+                andrzej_response = gpt_call(GPT4o, PROMPT_PAN_ANDRZEJ, "".join(user_responses))
+                print(andrzej_response)
+                if andrzej_response.strip() != "Koniec":
+                    response = input("> ")
             break   # wyjście z pętli
         case "Inne":
             szukaj = conversation
