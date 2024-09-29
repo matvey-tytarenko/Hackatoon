@@ -10,8 +10,7 @@ function WaitingRoom() {
     navigate("/");
   };
   const acceptCall = () => {
-    alert("Accept Call");
-    navigate('/chat')
+    navigate("/chat");
   };
 
   return (
@@ -46,7 +45,7 @@ function WaitingRoom() {
         className="absolute bottom-28"
         style={{
           left: "545px",
-          top: "560px"
+          top: "560px",
         }}
       >
         <Button
