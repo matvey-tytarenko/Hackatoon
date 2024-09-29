@@ -1,0 +1,26 @@
+@import url(https://fonts.googleapis.com/css?family=M+PLUS+1+Code:100,200,300,regular,500,600,700);
+
+body {
+    font-size: 20px;
+    
+
+}
+
+.title {
+    font-family: 'M PLUS 1 Code', sans-serif;
+    text-align: center;
+    position: relative;
+    top: 40px;
+}
+
+.right {
+    position: relative;
+    left: 945px;
+    bottom: 145px;
+    margin: auto;
+}
+
+header {
+    display: block;
+    height: 140px;
+}
