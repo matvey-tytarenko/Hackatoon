@@ -1,7 +1,10 @@
-openai
-xmlschema
 lxml
-BeautifulSoup
+onnx
+openai
+beautifulsoup4
+chromadb
 requests
-bs4
+langchain
+xmlschema
+onnxruntime
 googlesearch-python
