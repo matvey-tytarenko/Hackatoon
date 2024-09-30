@@ -599,39 +599,47 @@ Generate only the XML code.
 
 first_invocation = True
 
-global slawek_response, conversation
+global slawek_response
 andrzej_response = ""
 user_responses = []
+conversation = ""
+
+# uzytkownik przesyla input
+# input przetwarzany przez slawka
+# input przetwarzany przez pytie lub andrzeja
+
 
 def dawaj_odpowiedz(user_input):
     global first_invocation, slawek_response, conversation, user_responses, andrzej_response
-    if first_invocation:
-        #user_input = "dzien dobry"
-        slawek_response = gpt_call(GPT4o, PROMPT_PAN_SLAWEK, user_input)
-        conversation = user_input
-        first_invocation = False
-    else:
-        slawek_input = conversation #+ input("> ")
-        conversation = slawek_input
-        slawek_response = gpt_call(GPT4o, PROMPT_PAN_SLAWEK, slawek_input)
+
+    conversation += user_input + "\n"
+    slawek_response = gpt_call(GPT4o, PROMPT_PAN_SLAWEK, conversation)
+
     print(slawek_response)
     match slawek_response:
         case "Pytanie":
             basia_response = gpt_call(GPT4o, PROMPT_PANI_BASIA, conversation)
             prompt = PROMPT_PANI_PYTIA + "\n".join(data_base.retrieve_relevant_chunks(basia_response))
             pytia_response = gpt_call(GPT4o, prompt, conversation)
-            conversation += pytia_response
+            conversation += pytia_response + "\n"
             print("\n", pytia_response, "\n")
             return pytia_response
         case "Formularz":
-            response = conversation
+            response = user_input
             if (andrzej_response.strip() != "Koniec"):
-                user_responses.append(response)
-                andrzej_response = gpt_call(GPT4o, PROMPT_PAN_ANDRZEJ, "".join(user_responses))
+                user_responses.append("\nUżytkownik:\n"+response)
+                andrzej_response = gpt_call(GPT4o, PROMPT_PAN_ANDRZEJ, conversation + "\n".join(user_responses))
+                conversation += andrzej_response + "\n"
+                user_responses.append("Pytanie do użytkownika:\n"+andrzej_response)
+                if andrzej_response.strip() == "Koniec" or andrzej_response.strip() == "Koniec.":
+                    # wyjście mariana po wypełnieniu formularza
+                    print("Generowanie Deklaracji XML")
+                    marian_response = gpt_call(GPT4o, PROMPT_PAN_MARIAN, "".join(user_responses))
+                    print(marian_response)
+                    return marian_response
+
                 print(andrzej_response)
                 return andrzej_response
-                if andrzej_response.strip() != "Koniec":
-                    response = input("> ")
             else:
                 # wyjście mariana po wypełnieniu formularza
                 print("Generowanie Deklaracji XML")
@@ -652,7 +660,7 @@ def dawaj_odpowiedz(user_input):
         case _:
             basia_response = gpt_call(GPT4omini, PROMPT_PANI_BASIA, "Powiedz żeby powtórzyć pytanie, bo nie pasowało do żadnej kategorii")
             print("\n",basia_response, "\n")
-            response = conversation #+ input("> ")
-            return basia_response 
+            conversation += basia_response
+            return basia_response
 
 

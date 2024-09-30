@@ -13,34 +13,34 @@ def generate_ticket():
 app = Flask(__name__)
 CORS(app)
 
-#@app.route('/get_ticket', methods=['GET'])
-#def get_data():
-#    ticket = generate_ticket()
-#    tickets.append(ticket)
-#    response_data = {
-#        "message": ticket,
-#        "status": "success",
-#        "code": 200
-#    }
-#    return jsonify(response_data)
+@app.route('/get_ticket', methods=['GET'])
+def get_data():
+    ticket = generate_ticket()
+    tickets.append(ticket)
+    response_data = {
+        "message": ticket,
+        "status": "success",
+        "code": 200
+    }
+    return jsonify(response_data)
 
 @app.route('/ask', methods=['POST'])
 def post_data():
     try:
         # Try to get JSON data from request
         data = request.get_json()
-
-        if data is None or 'message' not in data:
-            # Return an error if the data is not valid
-            return jsonify({
-                "message": "Invalid request. 'message' field is required.",
-                "status": "fail",
-                "code": 400
-            }), 400
-
-        # If everything is okay, proceed
-        response_data = {
-            "message": dawaj_odpowiedz(data.get('message')),
+        print(data)
+        if data is None or 'question' not in data:
+            # Return an erro r if the data is not valid
+            return jsonify({ 
+                "message": " Invalid request. 'message' field is required.",
+                "status": "f ail",
+                "code": 400  
+            }), 400          
+                             
+        # If everything is o kay, proceed
+        response_data = {    
+            "message": dawaj_odpowiedz(data.get('question')),
             "status": "success",
             "code": 200
         }
