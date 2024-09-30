@@ -12,7 +12,7 @@ import API from "../service/API";
 
 function ChatPage() {
   const [messages, setMessages] = useState([
-    { id: 1, text: "Hello! How can I help you today?", sender: "bot" },
+    { id: 1, text: "Dzień dobry. W czym mogę pomóc?", sender: "bot" },
   ]);
 
   const [newMessage, setNewMessage] = useState("");

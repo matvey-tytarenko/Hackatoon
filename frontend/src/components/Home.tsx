@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../service/API.ts";
 import basia from '../assets/basia.png'
+import background from "../assets/img.png";
 
 export function Page() {
   const navigate = useNavigate();
@@ -28,8 +29,7 @@ export function Page() {
     <div
       className="relative bg-cover bg-center bg-no-repeat m-auto w-60 h-20"
       style={{
-        backgroundImage:
-          'url("https://media.discordapp.net/attachments/1289511299524329562/1289570914035568641/file-1CKpvn1BIfM9jmHN4mB5qvD3.png?ex=66f9f6c0&is=66f8a540&hm=2939357c4f185ccaed92b2ddd7f87aa91fd7ddedf92e10da4edc1ce018e5f4dc&=&format=webp&quality=lossless&width=905&height=905")',
+        backgroundImage:`url(${background})`,
         width: "100%",
         maxWidth: "1024px",
         height: "678px",

@@ -2,6 +2,7 @@ import React from "react";
 import { Button } from "./ui/button";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import background from "../assets/phone.png";
 
 function WaitingRoom() {
   const navigate = useNavigate();
@@ -17,8 +18,7 @@ function WaitingRoom() {
     <div
       className="relative bg-cover bg-center bg-no-repeat m-auto w-60 h-20"
       style={{
-        backgroundImage:
-          'url("https://media.discordapp.net/attachments/1289511299524329562/1289570599433404449/file-iEJAuYeUxGs9xNt8zOj12OUw.png?ex=66f9f675&is=66f8a4f5&hm=e3a44143848033db0a4de8cd2bf9714e12bd62bb7786cad657125633564c7c90&=&format=webp&quality=lossless&width=905&height=905")',
+        backgroundImage: `url(${background})`,
         width: "100%",
         maxWidth: "1024px",
         height: "678px",
